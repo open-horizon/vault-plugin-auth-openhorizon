@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/sdk/plugin"
-	openhorizon "github.com/open-openhorizon/vault-plugin-auth-openhorizon"
+	openhorizon "github.com/open-horizon/vault-plugin-auth-openhorizon"
 )
 
 // This plugin provides authentication support for openhorizon users within bao.
