@@ -1,0 +1,247 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+
+# The lines below are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/need to use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+project_name: vault-plugin-auth-openhorizon
+
+version: 2
+
+env:
+  - GITHUB_RELEASE_PRERELEASE={{ if index .Env "GITHUB_RELEASE_PRERELEASE"}}{{ .Env.GITHUB_RELEASE_PRERELEASE }}{{ else }}'true'{{ end }}
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+
+#gomod:
+#  proxy: true
+#  env:
+#    - GOPROXY=https://proxy.golang.org,direct
+#    - GOSUMDB=sum.golang.org
+
+builds:
+  - id: builds-darwin
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    goarm64:
+      - "v9.0"
+    main: ./cmd/vault-plugin-auth-openhorizon
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    skip: '{{- if not (eq .Env.RELEASE_BUILD_GOOS "darwin") }}true{{ else }}false{{ end }}'
+
+  - id: builds-freebsd
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - freebsd
+    goarch:
+      - amd64
+      - arm
+    goarm:
+      - "6"
+      - "7"
+    main: ./cmd/vault-plugin-auth-openhorizon
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    skip: '{{- if not (eq .Env.RELEASE_BUILD_GOOS "freebsd") }}true{{ else }}false{{ end }}'
+
+  - id: builds-illumos
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - illumos
+    goarch:
+      - amd64
+    main: ./cmd/vault-plugin-auth-openhorizon
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    skip: '{{- if not (eq .Env.RELEASE_BUILD_GOOS "illumos") }}true{{ else }}false{{ end }}'
+
+  - id: builds-linux
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm
+      - arm64
+      - ppc64le
+      - riscv64
+      - s390x
+    goarm:
+      - "6"
+      - "7"
+    goarm64:
+      - "v9.0"
+    main: ./cmd/vault-plugin-auth-openhorizon
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    skip: '{{- if not (eq .Env.RELEASE_BUILD_GOOS "linux") }}true{{ else }}false{{ end }}'
+
+  - id: builds-netbsd
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - netbsd
+    goarch:
+      - amd64
+      - arm
+    goarm:
+      - "6"
+      - "7"
+    main: ./cmd/vault-plugin-auth-openhorizon
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    skip: '{{- if not (eq .Env.RELEASE_BUILD_GOOS "netbsd") }}true{{ else }}false{{ end }}'
+
+  - id: builds-openbsd
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - openbsd
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - "6"
+      - "7"
+    goarm64:
+      - "v9.0"
+    main: ./cmd/vault-plugin-auth-openhorizon
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    skip: '{{- if not (eq .Env.RELEASE_BUILD_GOOS "openbsd") }}true{{ else }}false{{ end }}'
+
+  - id: builds-solaris
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - solaris
+    goarch:
+      - amd64
+    main: ./cmd/vault-plugin-auth-openhorizon
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    skip: '{{- if not (eq .Env.RELEASE_BUILD_GOOS "solaris") }}true{{ else }}false{{ end }}'
+
+  - id: builds-windows
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - "6"
+      - "7"
+    goarm64:
+      - "v9.0"
+    main: ./cmd/vault-plugin-auth-openhorizon
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    skip: '{{- if not (eq .Env.RELEASE_BUILD_GOOS "windows") }}true{{ else }}false{{ end }}'
+
+report_sizes: true
+
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Env.RELEASE_BUILD_GOOS }}-checksums.txt'
+  disable: false
+
+archives:
+  - formats: tar.gz
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+      {{- if .Arm64 }}{{ .Arm64 }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        formats: zip
+    files:
+      - 'LICENSE.txt'
+      - 'README.md'
+      - 'CHANGELOG.md'
+    builds_info:
+      group: root
+      owner: root
+      mode: 0755
+      # format is `time.RFC3339Nano`
+      mtime: 2008-01-02T15:04:05Z
+    allow_different_binary_count: true
+
+sboms:
+  - artifacts: archive
+  - id: binary
+    artifacts: binary
+    documents:
+      - >-
+        {{ .Binary }}_{{ .Version }}_{{ .Os }}_
+        {{- if eq .Arch "amd64" }}x86_64
+        {{- else if eq .Arch "386" }}i386
+        {{- else }}{{ .Arch }}{{ end }}
+        {{- if .Arm }}v{{ .Arm }}{{ end }}
+        {{- if .Arm64 }}{{ .Arm64 }}{{ end }}.sbom.json
+  - id: package
+    artifacts: package
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+signs:
+  - id: cosign
+    artifacts: all
+    cmd: cosign
+    certificate: "${artifact}.pem"
+    args:
+      - "sign-blob"
+      - "--oidc-issuer=https://token.actions.githubusercontent.com"
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes" # needed on cosign 2.0.0+
+#  - id: gpg
+#    artifacts: all
+#    signature: "${artifact}.gpgsig"
+#    cmd: gpg
+#    stdin: "{{ .Env.GPG_PASSWORD }}"
+#    args:
+#      - "--batch"
+#      - "--default-key={{ .Env.GPG_FINGERPRINT }}"
+#      - "--output=${signature}"
+#      - "--detach-sign"
+#      - "${artifact}"
+
+release:
+  github:
+    owner: '{{ .Env.GITHUB_REPOSITORY_OWNER }}'
+    name: vault-plugin-auth-openhorizon
+
+  prerelease: auto
+  make_latest: '{{ if index .Env "GITHUB_RELEASE_MAKE_LATEST"}}{{ .Env.GITHUB_RELEASE_MAKE_LATEST }}{{ else }}false{{ end }}'
+  disable: false
+
+  # We overwrite the following variables to support multi-stage execution of
+  # goreleaser on the same artifacts with different GOOS values, to avoid
+  # running out of disk space. We can't support draft releases because the same
+  # release needs to be used for all artifacts uploaded from separate stages.
+  draft: false
+  replace_existing_draft: false
+  replace_existing_artifacts: false

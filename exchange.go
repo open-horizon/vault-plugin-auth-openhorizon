@@ -1,6 +1,4 @@
-package plugin
-
-import ()
+package openhorizon
 
 type UserDefinition struct {
 	Password    string `json:"password"`

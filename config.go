@@ -1,12 +1,13 @@
-package plugin
+package openhorizon
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
-	"strconv"
 )
 
 const EXCHANGE_URL_STORAGE_KEY = "exchange-url"
@@ -17,7 +18,7 @@ const VAULT_APIURL_STORAGE_KEY = "vault-url"
 const DEFAULT_RENEWAL_RATE = 300
 const DEFAULT_APIURL = "http://localhost:8200"
 
-func (o *ohAuthPlugin) pathConfig(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
+func (o *backend) pathConfig(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
 
 	// Validate that the exchange URL is reachable.
 	if o.Logger().IsInfo() {
@@ -91,7 +92,7 @@ func (o *ohAuthPlugin) pathConfig(ctx context.Context, req *logical.Request, d *
 }
 
 // Extract the exchange URL and vault token from plugin storage.
-func (o *ohAuthPlugin) getConfig(ctx context.Context, req *logical.Request) (exURL string, token string, renewalRate int, err error) {
+func (o *backend) getConfig(ctx context.Context, req *logical.Request) (exURL string, token string, renewalRate int, err error) {
 
 	var url *logical.StorageEntry
 

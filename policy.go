@@ -1,4 +1,4 @@
-package plugin
+package openhorizon
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ const ADMIN_ORG_WIDE_POLICY1 = `path "openhorizon/data/%s/*" {capabilities = ["c
 const ADMIN_ORG_WIDE_POLICY2 = `path "openhorizon/metadata/%s/*" {capabilities = ["list", "read", "delete"]}`
 
 // Regular openhorizon users will have these ACL policies attached.
-// note: USER_PRIVATE_DENY_POLICY1 is also given to admins to prevent them from being able to read 
+// note: USER_PRIVATE_DENY_POLICY1 is also given to admins to prevent them from being able to read
 // other user's private secrets
 const NON_ADMIN_ORG_WIDE_POLICY = `path "openhorizon/metadata/%s/*" {capabilities = ["list", "read"]}`
 const USER_PRIVATE_DENY_POLICY1 = `path "openhorizon/data/%s/user/*" {capabilities = ["deny"]}`
@@ -29,7 +29,7 @@ const USER_PRIVATE_POLICY2 = `path "openhorizon/metadata/%s/user/%s/*" {capabili
 const USER_PRIVATE_POLICY3 = `path "openhorizon/metadata/%s/user/%s" {capabilities = ["list"]}`
 
 // Ensure that the right ACL policies exist so that they can be attached to the user's token.
-func (o *ohAuthPlugin) setupUserPolicies(userOrg string, userId string, admin bool, vaultToken string) (policyName string, err error) {
+func (o *backend) setupUserPolicies(userOrg string, userId string, admin bool, vaultToken string) (policyName string, err error) {
 
 	// TODO: VAULT_TOKEN env var is read by NewClient()
 	o.vc.SetToken(vaultToken)
@@ -108,7 +108,7 @@ func (o *ohAuthPlugin) setupUserPolicies(userOrg string, userId string, admin bo
 }
 
 // Ensure that the right ACL policies exist so that they can be attached to the user's token.
-func (o *ohAuthPlugin) setupAgbotPolicies(vaultToken string) (err error) {
+func (o *backend) setupAgbotPolicies(vaultToken string) (err error) {
 
 	o.vc.SetToken(vaultToken)
 

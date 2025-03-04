@@ -1,11 +1,12 @@
-package plugin
+package openhorizon
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
-	"net/http"
 )
 
 const AUTH_USER_KEY = "id"
@@ -16,7 +17,7 @@ const CONFIG_TOKEN_KEY = "token"
 const CONFIG_AGBOT_RENEWAL_KEY = "renewal"
 const CONFIG_VAULT_API_KEY = "apiurl"
 
-type ohAuthPlugin struct {
+type backend struct {
 
 	// The vault auth plugin framework.
 	*framework.Backend
@@ -28,8 +29,8 @@ type ohAuthPlugin struct {
 	vc *api.Client
 }
 
-func OHAuthPlugin(c *logical.BackendConfig) *ohAuthPlugin {
-	var b ohAuthPlugin
+func OHAuthPlugin(c *logical.BackendConfig) *backend {
+	var b backend
 	var err error
 
 	b.httpClient, err = NewHTTPClient()
@@ -50,13 +51,13 @@ func OHAuthPlugin(c *logical.BackendConfig) *ohAuthPlugin {
 			SealWrapStorage: []string{"config"},
 		},
 		Paths: []*framework.Path{
-			&framework.Path{
+			{
 				Pattern: "login",
 				Fields: map[string]*framework.FieldSchema{
-					AUTH_USER_KEY: &framework.FieldSchema{
+					AUTH_USER_KEY: {
 						Type: framework.TypeString,
 					},
-					AUTH_TOKEN_KEY: &framework.FieldSchema{
+					AUTH_TOKEN_KEY: {
 						Type: framework.TypeString,
 					},
 				},
@@ -64,19 +65,19 @@ func OHAuthPlugin(c *logical.BackendConfig) *ohAuthPlugin {
 					logical.UpdateOperation: b.pathAuthLogin,
 				},
 			},
-			&framework.Path{
+			{
 				Pattern: "config",
 				Fields: map[string]*framework.FieldSchema{
-					CONFIG_EXCHANGE_URL_KEY: &framework.FieldSchema{
+					CONFIG_EXCHANGE_URL_KEY: {
 						Type: framework.TypeString,
 					},
-					CONFIG_TOKEN_KEY: &framework.FieldSchema{
+					CONFIG_TOKEN_KEY: {
 						Type: framework.TypeString,
 					},
-					CONFIG_AGBOT_RENEWAL_KEY: &framework.FieldSchema{
+					CONFIG_AGBOT_RENEWAL_KEY: {
 						Type: framework.TypeInt,
 					},
-					CONFIG_VAULT_API_KEY: &framework.FieldSchema{
+					CONFIG_VAULT_API_KEY: {
 						Type: framework.TypeString,
 					},
 				},
