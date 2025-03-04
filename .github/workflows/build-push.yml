@@ -26,7 +26,7 @@ jobs:
       GOPATH: ${{ github.workspace }}/go 
       REPO_DIR: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
       IMAGE_NAME: amd64_vault
-      BINARY_NAME: hznvaultauth
+      BINARY_NAME: vault-plugin-auth-openhorizon
 
     # Executed sequentially when job runs
     steps:
