@@ -1,6 +1,9 @@
-FROM registry.access.redhat.com/ubi9-minimal:latest
+ARG RH_UBI_TYPE="minimal"
+ARG RHEL_BASE_IMAGE_VER="latest"
+ARG RHEL_MAJOR_VERSION="9"
+FROM registry.access.redhat.com/ubi${RHEL_MAJOR_VERSION}-${RH_UBI_TYPE}:${RHEL_BASE_IMAGE_VER}
 
-LABEL vendor="IBM"
+LABEL vendor="Open Horizon"
 LABEL summary="The secrets vault."
 LABEL description="The vault manages secrets used by applications deployed to edge nodes."
 
@@ -9,7 +12,7 @@ RUN mkdir -p /licenses
 COPY LICENSE.txt /licenses
 
 # This is the release of Vault to pull in and the key to verify the download.
-ARG VAULT_VERSION
+ARG VAULT_VERSION=1.14.8 #[CRITICAL] DO NOT CHANGE!
 ARG VAULT_GPGKEY
 ARG ARCH
 ARG VAULT_PLUGIN_HASH
@@ -18,9 +21,9 @@ ARG VAULT_PLUGIN_HASH
 
 # Set up certificates, our base tools, and Vault.
 RUN set -eux; \
-    microdnf update -y; \
-    microdnf install -y ca-certificates shadow-utils gnupg openssl libcap wget tzdata unzip gzip tar && \
-    microdnf upgrade -y --nodocs --setopt=install_weak_deps=0 --disableplugin=subscription-manager krb5-libs && \
+    microdnf update -y --nodocs --refresh 1>/dev/null 2>&1 && \
+    microdnf install -y --nodocs ca-certificates shadow-utils gnupg openssl libcap wget tzdata unzip gzip tar 1>/dev/null 2>&1 && \
+    microdnf upgrade -y --nodocs --setopt=install_weak_deps=0 --disableplugin=subscription-manager krb5-libs 1>/dev/null 2>&1 && \
     found=''; \
     for server in \
         hkp://p80.pool.sks-keyservers.net:80 \
@@ -45,7 +48,7 @@ RUN set -eux; \
     rm -rf /tmp/build && \
     gpgconf --kill dirmngr && \
     gpgconf --kill gpg-agent  && \
-    rm -rf /root/.gnupg  && \
+    rm -rf /root/.gnupg && \
     microdnf clean all
 
 # /vault/logs is made available to use as a location to store audit logs
@@ -87,9 +90,9 @@ RUN curl -4LO https://storage.googleapis.com/kubernetes-release/release/`curl -s
     chmod +x ./kubectl && \
     mv ./kubectl /usr/local/bin
 
-COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-COPY scripts/auto-unseal.sh /usr/local/bin/auto-unseal.sh
-COPY scripts/renewToken.sh /usr/local/bin/renewToken.sh
+COPY docker/scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY docker/scripts/auto-unseal.sh /usr/local/bin/auto-unseal.sh
+COPY docker/scripts/renewToken.sh /usr/local/bin/renewToken.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/auto-unseal.sh && \
@@ -100,11 +103,11 @@ RUN chmod +x /usr/local/bin/entrypoint.sh && \
 #
 ENTRYPOINT ["entrypoint.sh"]
 
-COPY bin/hznvaultauth /vault/plugins/hznvaultauth
-COPY config/config.hcl /vault/config/config.hcl
-COPY policy/agbot.acl.policy.hcl /openhorizon/policy/agbot.acl.policy.hcl
+COPY bin/vault-plugin-auth-openhorizon /vault/plugins/vault-plugin-auth-openhorizon
+COPY docker/config/config.hcl /vault/config/config.hcl
+COPY docker/policy/agbot.acl.policy.hcl /openhorizon/policy/agbot.acl.policy.hcl
 
-RUN chmod +x /vault/plugins/hznvaultauth
+RUN chmod +x /vault/plugins/vault-plugin-auth-openhorizon
 
 USER vault
 
