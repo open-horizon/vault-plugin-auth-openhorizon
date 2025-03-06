@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2](https://github.com/open-horizon/vault-plugin-auth-openhorizon/pull/87) - 2025-03-06
+- Fixed Vulnerability CVE-2025-27144.
+- Fixed Vulnerability CVE-2025-22869.
+- go-jose/go-jose/v4 v4.0.1 -> v4.0.5.
+- x/crypto v0.31.0 -> v0.35.0.
+
 ## [1.2.1](https://github.com/open-horizon/vault-plugin-auth-openhorizon/pull/90) - 2025-03-04
 - Fixed type in module reference.
 
