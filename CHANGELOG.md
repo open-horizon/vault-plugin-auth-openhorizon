@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3](https://github.com/open-horizon/vault-plugin-auth-openhorizon/pull/93) - 2025-03-31
+- Fixed Vulnerability CVE-2025-22870.
+
 ## [1.2.2](https://github.com/open-horizon/vault-plugin-auth-openhorizon/pull/87) - 2025-03-06
 - Fixed Vulnerability CVE-2025-27144.
 - Fixed Vulnerability CVE-2025-22869.
