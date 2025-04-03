@@ -10,7 +10,7 @@ VAULT_PLUGIN_HASH := ""
 
 EXECUTABLE := vault-plugin-auth-openhorizon
 DOCKER_INAME ?= openhorizon/$(arch)_vault
-VERSION ?= 1.2.2
+VERSION ?= 1.2.3
 DEV_VERSION ?=testing
 DOCKER_IMAGE_LABELS ?= --label "name=$(arch)_vault" --label "version=$(VERSION)" --label "vault_version=$(VAULT_VERSION)" --label "release=$(shell git rev-parse --short HEAD)"
 
@@ -37,7 +37,7 @@ format:
 
 ./bin/$(EXECUTABLE): $(shell find . -name '*.go')
 	@echo "Producing $(EXECUTABLE) for arch: amd64"
-	$(COMPILE_ARGS) go build -o ./bin/$(EXECUTABLE)
+	$(COMPILE_ARGS) go build -o ./bin/$(EXECUTABLE) ./cmd/$(EXECUTABLE)
 
 .PHONY: dev-goreleaser
 #dev-goreleaser: export GPG_KEY_FILE := /dev/null
