@@ -86,7 +86,6 @@ func OHAuthPlugin(c *logical.BackendConfig) *backend {
 				},
 			},
 		},
-		RunningVersion: b.RunningVersion,
 	}
 
 	return &b
