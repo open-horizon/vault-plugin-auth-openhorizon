@@ -1,25 +1,27 @@
-ARG RH_UBI_TYPE="minimal"
-ARG RHEL_BASE_IMAGE_VER="latest"
-ARG RHEL_MAJOR_VERSION="9"
+ARG RH_UBI_TYPE="minimal" \
+    RHEL_BASE_IMAGE_VER="latest" \
+    RHEL_MAJOR_VERSION="9"
 FROM registry.access.redhat.com/ubi${RHEL_MAJOR_VERSION}-${RH_UBI_TYPE}:${RHEL_BASE_IMAGE_VER}
 
-LABEL vendor="Open Horizon"
-LABEL summary="The secrets vault."
-LABEL description="The vault manages secrets used by applications deployed to edge nodes."
+LABEL description="The vault manages secrets used by applications deployed to edge nodes." \
+      summary="The secrets vault." \
+      vendor="Open Horizon"
 
 # add license file
-RUN mkdir -p /licenses
+WORKDIR /licenses
 COPY LICENSE.txt /licenses
 
 # This is the release of Vault to pull in and the key to verify the download.
-ARG VAULT_VERSION=1.14.8 #[CRITICAL] DO NOT CHANGE!
-ARG VAULT_GPGKEY
-ARG ARCH
-ARG VAULT_PLUGIN_HASH
+                  #[CRITICAL] DO NOT CHANGE!
+ARG VAULT_VERSION=1.14.8 \ 
+    VAULT_GPGKEY \
+    ARCH="amd64" \
+    VAULT_PLUGIN_HASH
 
 # Create a vault user and group first so the IDs get set the same way.
 
 # Set up certificates, our base tools, and Vault.
+WORKDIR /
 RUN set -eux; \
     microdnf update -y --nodocs --refresh 1>/dev/null 2>&1 && \
     microdnf install -y --nodocs ca-certificates shadow-utils gnupg openssl libcap wget tzdata unzip gzip tar 1>/dev/null 2>&1 && \
@@ -55,12 +57,13 @@ RUN set -eux; \
 # /vault/file is made available to use as a location with the file storage backend
 # the server will be started with /vault/config as the configuration directory so you can add additional config files in that location.
 RUN useradd -r -u 1000 -g root vault \
-        && mkdir /home/vault \
-        && chown -R vault:root /home/vault
+    && mkdir /home/vault \
+    && chown -R vault:root /home/vault
 
-ENV VAULT_PLUGIN_HASH ${VAULT_PLUGIN_HASH}
-ENV HOME /home/vault
-ENV VAULT_PLUGIN_AUTOMTLS_ENABLED false
+ENV VAULT_PLUGIN_HASH=${VAULT_PLUGIN_HASH} \
+    HOME=/home/vault \
+    VAULT_PLUGIN_AUTOMTLS_ENABLED=false
+
 RUN mkdir -p /vault/logs && \
     mkdir -p /vault/file && \
     mkdir -p /vault/config && \
@@ -90,24 +93,16 @@ RUN curl -4LO https://storage.googleapis.com/kubernetes-release/release/`curl -s
     chmod +x ./kubectl && \
     mv ./kubectl /usr/local/bin
 
-COPY docker/scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-COPY docker/scripts/auto-unseal.sh /usr/local/bin/auto-unseal.sh
-COPY docker/scripts/renewToken.sh /usr/local/bin/renewToken.sh
-
-RUN chmod +x /usr/local/bin/entrypoint.sh && \
-    chmod +x /usr/local/bin/auto-unseal.sh && \
-    chmod +x /usr/local/bin/renewToken.sh
+COPY --chmod=775 docker/scripts/*.sh /usr/local/bin/
 
 # The entry point script uses dumb-init as the top-level process to reap any
 # zombie processes created by Vault sub-processes.
 #
 ENTRYPOINT ["entrypoint.sh"]
 
-COPY bin/vault-plugin-auth-openhorizon /vault/plugins/vault-plugin-auth-openhorizon
+COPY --chmod=775 bin/vault-plugin-auth-openhorizon /vault/plugins/vault-plugin-auth-openhorizon
 COPY docker/config/config.hcl /vault/config/config.hcl
 COPY docker/policy/agbot.acl.policy.hcl /openhorizon/policy/agbot.acl.policy.hcl
-
-RUN chmod +x /vault/plugins/vault-plugin-auth-openhorizon
 
 USER vault
 
