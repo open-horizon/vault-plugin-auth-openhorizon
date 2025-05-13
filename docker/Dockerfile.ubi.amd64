@@ -24,6 +24,7 @@ ARG VAULT_VERSION=1.14.8 \
 WORKDIR /
 RUN set -eux; \
     microdnf update -y --nodocs --refresh 1>/dev/null 2>&1 && \
+    microdnf update -y glibc && \
     microdnf install -y --nodocs ca-certificates shadow-utils gnupg openssl libcap wget tzdata unzip gzip tar 1>/dev/null 2>&1 && \
     microdnf upgrade -y --nodocs --setopt=install_weak_deps=0 --disableplugin=subscription-manager krb5-libs 1>/dev/null 2>&1 && \
     found=''; \
