@@ -109,3 +109,5 @@ USER vault
 # By default you'll get a single-node development server that stores everything
 # in RAM and bootstraps itself. Don't use this configuration for production.
 CMD ["server", "-dev"]
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD grep -q entrypoint.sh /proc/1/comm || exit 1
