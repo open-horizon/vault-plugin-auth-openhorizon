@@ -1,6 +1,6 @@
 ARG RH_UBI_TYPE="minimal" \
     RHEL_BASE_IMAGE_VER="latest" \
-    RHEL_MAJOR_VERSION="9"
+    RHEL_MAJOR_VERSION="10"
 FROM registry.access.redhat.com/ubi${RHEL_MAJOR_VERSION}-${RH_UBI_TYPE}:${RHEL_BASE_IMAGE_VER}
 
 LABEL description="The vault manages secrets used by applications deployed to edge nodes." \
