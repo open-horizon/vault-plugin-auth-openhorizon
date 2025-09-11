@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.4](https://github.com/open-horizon/vault-plugin-auth-openhorizon/pull/94) -2025-09-11
+- Fixed kubectl version in dockerfile
+
 ## [1.2.3](https://github.com/open-horizon/vault-plugin-auth-openhorizon/pull/94) -2025-04-03
 - Fixed go build in Makefile.
 - Updated Golang and dependencies.
