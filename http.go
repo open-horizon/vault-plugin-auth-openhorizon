@@ -123,7 +123,15 @@ func (o *backend) invokeExchange(url string, user string, pw string) (*http.Resp
 
 	// Add the basic auth header so that the exchange will authenticate.
 	if user != "" && pw != "" {
-		req.SetBasicAuth(user, pw)
+		if strings.HasPrefix(pw, "Bearer ") {
+			// pw is: Bearer <token>
+			req.Header.Add("Authorization", pw)
+			orgId, _ := SplitOrgSpecUrl(user)
+			req.Header.Add("X-Organization", orgId)
+		} else {
+			req.SetBasicAuth(user, pw)
+		}
+
 		req.Header.Add("Accept", "application/json")
 	}
 	req.Close = true
