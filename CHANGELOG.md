@@ -2,7 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.2.3](https://github.com/open-horizon/vault-plugin-auth-openhorizon/pull/94) -2025-04-03
+## [1.2.4](https://github.com/open-horizon/vault-plugin-auth-openhorizon/pull/106) - 2026-01-08
+- Golang dependency updates.
+
+## [1.2.3](https://github.com/open-horizon/vault-plugin-auth-openhorizon/pull/94) - 2025-04-03
 - Fixed go build in Makefile.
 - Updated Golang and dependencies.
 - Added plugin multiplexing support.
