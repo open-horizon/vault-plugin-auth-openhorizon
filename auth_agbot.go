@@ -122,7 +122,7 @@ func (o *backend) verifyAgbotCredentials(exURL string, userOrg string, userId st
 	// If the response code was not expected, then return the error.
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		if resp.StatusCode == 401 {
-			return nil, NotAuthenticatedError{Msg: fmt.Sprintf("unable to verify agbot (%s) in the exchange, HTTP code %v, either the agbot is undefined or the agbot's password is incorrect.", userOrg, user, resp.StatusCode)}
+			return nil, NotAuthenticatedError{Msg: fmt.Sprintf("unable to verify agbot (%s) in the exchange, HTTP code %v, either the agbot is undefined or the agbot's password is incorrect.", user, resp.StatusCode)}
 		} else if resp.StatusCode == 404 {
 			return nil, NotAuthenticatedError{Msg: fmt.Sprintf("agbot (%s) not found in the exchange, HTTP code %v", user, resp.StatusCode)}
 		} else {
